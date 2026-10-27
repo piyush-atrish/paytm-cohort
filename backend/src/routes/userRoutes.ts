@@ -1,7 +1,7 @@
 import { Router} from "express";
 import type {Request , Response } from "express";
 import { credSchema } from "../validator/auth.validator.js";
-import { createUser } from "../dao/userDao.js";
+import { createUser , userSignin } from "../dao/userDao.js";
 
 
 export const userRouter : Router = Router();
@@ -40,8 +40,21 @@ userRouter.post('/signup' , async(req : Request , res : Response) => {
 
 });
 
-userRouter.post('/signin' , (req : Request , res : Response) => {
-
+userRouter.post('/signin' , async(req : Request , res : Response) => {
+    const {phone , password} = req.body;
+    try{
+        await userSignin(phone,password);
+        
+        res.status(200).json({
+            message : "you have signed in"
+        })
+    }
+    catch(e){
+        console.log(e);
+        res.status(401).json({
+            message:"incorrect phone or password"
+        });
+    }
 });
 
 userRouter.patch('/update-profile' , (req : Request , res : Response) => {

@@ -2,13 +2,19 @@ import express from "express";
 import type { Request, Response, Application } from 'express'; 
 import { connectDb } from "./config/db.js";
 import { userRouter } from "./routes/userRoutes.js";
+import cors from 'cors';
 
 const app : Application = express();
 const PORT : number = 3000;
 
 app.use(express.json());
 
-app.use('/user' , userRouter);
+app.use(cors({
+    origin: process.env.ORIGIN,
+    credentials: true
+}));
+
+app.use('/api/v1/user' , userRouter);
 
 const main = async()=>{
     try{
