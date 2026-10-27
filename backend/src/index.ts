@@ -5,6 +5,7 @@ import { userRouter } from "./routes/userRoutes.js";
 import cors from 'cors';
 import { globalErrorHandler } from "./middlewares/errorHandler.js";
 import cookieParser from "cookie-parser";
+import { accountRouter } from "./routes/accountRoutes.js";
 
 const app : Application = express();
 const PORT : number = 3000;
@@ -16,6 +17,8 @@ app.use(cors({
     origin: process.env.ORIGIN,
     credentials: true
 }));
+
+app.use('/api/v1/user/account' , accountRouter);
 
 app.use('/api/v1/user' , userRouter);
 
