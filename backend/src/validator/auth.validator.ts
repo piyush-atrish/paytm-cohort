@@ -21,3 +21,10 @@ export const credSchema = z.object({
     message: "Password cannot contain your name",
     path: ["password"]
 });
+
+export const updateCredSchema = z.object({
+    password: passwordSchema.optional(),
+    firstName: z.string().max(50).optional(),
+    lastName: z.string().max(50).optional(),
+    email: z.email({ message: "Invalid email format" }).optional(),
+})

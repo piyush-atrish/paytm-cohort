@@ -3,11 +3,14 @@ import type { Request, Response, Application } from 'express';
 import { connectDb } from "./config/db.js";
 import { userRouter } from "./routes/userRoutes.js";
 import cors from 'cors';
+import { globalErrorHandler } from "./middlewares/errorHandler.js";
+import cookieParser from "cookie-parser";
 
 const app : Application = express();
 const PORT : number = 3000;
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(cors({
     origin: process.env.ORIGIN,
@@ -15,6 +18,8 @@ app.use(cors({
 }));
 
 app.use('/api/v1/user' , userRouter);
+
+app.use(globalErrorHandler);
 
 const main = async()=>{
     try{

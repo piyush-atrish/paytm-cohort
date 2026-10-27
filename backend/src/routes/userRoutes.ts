@@ -1,12 +1,13 @@
 import { Router} from "express";
-import type {Request , Response } from "express";
-import { credSchema } from "../validator/auth.validator.js";
-import { createUser , userSignin } from "../dao/userDao.js";
-
+import type {NextFunction, Request , Response } from "express";
+import { credSchema , updateCredSchema } from "../validator/auth.validator.js";
+import { createUser , userSignin , updateUser ,getUsers} from "../dao/userDao.js";
+import { createToken } from "../utils/jwt.utils.js";
+import {userAuth} from "../middlewares/userAuth.js"
 
 export const userRouter : Router = Router();
 
-userRouter.post('/signup' , async(req : Request , res : Response) => {
+userRouter.post('/signup' , async(req : Request , res : Response , next : NextFunction) => {
     const {email , password , firstName , lastName , phone} = req.body;
     const response = credSchema.safeParse({
         email:email,
@@ -32,31 +33,60 @@ userRouter.post('/signup' , async(req : Request , res : Response) => {
 
     }
     catch(e){
-        console.log(e);
-        return res.status(403).json({
-            message: "some error occured while singning up!"
-        });
+        next(e);
     }
 
 });
 
-userRouter.post('/signin' , async(req : Request , res : Response) => {
+userRouter.post('/signin' , async(req : Request , res : Response , next : NextFunction) => {
     const {phone , password} = req.body;
     try{
-        await userSignin(phone,password);
-        
+        const id : string = await userSignin(phone,password);
+        const jwtKey : string|undefined = process.env.JWT_USER;
+        if(!jwtKey)throw new Error("missing jwt key");
+        const token = createToken(id,jwtKey);
+        res.cookie("token", token, {
+            httpOnly: true,  
+            secure: false,  
+            maxAge: 3600000
+        });
         res.status(200).json({
             message : "you have signed in"
         })
     }
     catch(e){
-        console.log(e);
-        res.status(401).json({
-            message:"incorrect phone or password"
-        });
+        next(e);
     }
 });
 
-userRouter.patch('/update-profile' , (req : Request , res : Response) => {
+userRouter.use(userAuth);
 
+userRouter.patch('/update-profile' , async(req : Request , res : Response , next : NextFunction) => {
+    const response = updateCredSchema.safeParse(req.body);
+    if(!response.success){
+        console.log(response.error.issues.map(issue => issue.message));
+        return res.json({
+            message : "provide proper credentials"
+        });
+    }
+    try{
+        await updateUser(req.userId!,req.body);
+        res.status(200).json({
+            message : "updated credentials"
+        });
+    }
+    catch(e){
+        next(e);
+    }
+});
+
+userRouter.get('/bulk' , async(req : Request , res : Response , next : NextFunction)=>{
+    const filter = typeof req.query.filter === 'string' ? req.query.filter : "";
+    try{
+        const users = await getUsers(filter);
+        res.status(200).json(users);
+    }
+    catch(e){
+        next(e);
+    }
 });
