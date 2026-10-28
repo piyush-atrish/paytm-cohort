@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { userAuth } from "../middlewares/userAuth.js";
 import type {NextFunction, Request , Response } from "express";
-import { addAccount , checkBalance , transferAmount } from "../dao/accountDao.js";
+import { addAccount , checkDetails , transferAmount } from "../dao/accountDao.js";
 
 export const accountRouter = Router();
 
@@ -20,10 +20,10 @@ accountRouter.post('/add-account' , async(req : Request , res : Response , next 
     }
 });
 
-accountRouter.get('/balance', async(req : Request , res : Response , next : NextFunction)=>{
+accountRouter.get('/details', async(req : Request , res : Response , next : NextFunction)=>{
     try{
-        const balance = await checkBalance(req.userId!);
-        res.status(200).json({balance});
+        const details = await checkDetails(req.userId!);
+        res.status(200).json(details);
     }
     catch(e){
         next(e);

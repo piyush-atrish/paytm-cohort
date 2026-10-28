@@ -1,7 +1,7 @@
 import { Router} from "express";
 import type {NextFunction, Request , Response } from "express";
 import { credSchema , updateCredSchema } from "../validator/auth.validator.js";
-import { createUser , userSignin , updateUser ,getUsers} from "../dao/userDao.js";
+import { createUser , userSignin , updateUser ,getUsers , getData} from "../dao/userDao.js";
 import { createToken } from "../utils/jwt.utils.js";
 import {userAuth} from "../middlewares/userAuth.js"
 
@@ -87,6 +87,33 @@ userRouter.get('/bulk' , async(req : Request , res : Response , next : NextFunct
         res.status(200).json(users);
     }
     catch(e){
+        next(e);
+    }
+});
+
+userRouter.get('/data' , async(req : Request , res : Response , next : NextFunction)=>{
+    const userId = req.userId;
+    try{
+        const data = await getData(userId!);
+        res.status(200).json(data);
+    }
+    catch(e){
+        next(e);
+    }
+});
+
+userRouter.post('/logout', (req: Request, res: Response, next: NextFunction) => {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,  
+            secure: false    
+        });
+        
+        res.status(200).json({
+            message: "You have been logged out successfully"
+        });
+    }
+    catch (e) {
         next(e);
     }
 });

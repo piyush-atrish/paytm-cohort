@@ -56,3 +56,14 @@ export const getUsers = async(filter:string)=>{
         throw new AppError("error while loading users" , 500);
     }
 }
+
+export const getData = async(userId : string)=>{
+    try{
+        return await userModel.findOne({
+            _id: userId
+        }).select('-password -__v').lean();
+    }
+    catch(e){
+        throw new AppError("error while fetching data" , 500);
+    }
+}

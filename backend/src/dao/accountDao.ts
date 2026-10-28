@@ -21,11 +21,15 @@ export const addAccount = async(userId : string , balance : number)=>{
         }
 }
 
-export const checkBalance = async(userId :string)=>{
+export const checkDetails = async(userId :string)=>{
     try{
         const account = await accountModel.findOne({userId : userId});
         if(!account)throw new AppError("account not found",404);
-        return account.balance;
+        return {
+            balance : account.balance,
+            transfered : account.transfered ,
+            received : account.received
+        };
     }
     catch(e){
         throw new AppError("some error occured while fetching balance",500);
