@@ -9,22 +9,22 @@ export const userRouter : Router = Router();
 
 userRouter.post('/signup' , async(req : Request , res : Response , next : NextFunction) => {
     const {email , password , firstName , lastName , phone} = req.body;
-    const response = credSchema.safeParse({
-        email:email,
-        password :password,
-        firstName :firstName,
-        lastName :lastName,
-        phone : phone
-    });
-
-    if(!response.success){
-        console.log(response.error.issues.map(issue => issue.message));
-        return res.json({
-            message : "provide proper credentials"
-        })
-    }
-
     try{
+        const response = credSchema.safeParse({
+            email:email,
+            password :password,
+            firstName :firstName,
+            lastName :lastName,
+            phone : phone
+        });
+
+        if(!response.success){
+            console.log(response.error.issues.map(issue => issue.message));
+            res.status(401).json({
+                message:"provide proper creds"
+            });
+        }
+
         await createUser(email,password,firstName,lastName,phone);
 
         res.json({
