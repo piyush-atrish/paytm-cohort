@@ -5,6 +5,7 @@ import { DashBoard } from "./pages/DashBoard"
 import { Transfer } from "./pages/Transfer"
 import { Home } from "./pages/Home"
 import { UpdateDetails } from "./pages/UpdateDetails"
+import { TransferExecute } from "./pages/TransferExecute"
 
 function App() {
 
@@ -17,7 +18,9 @@ function App() {
           <Route path="/signin" element={<Signin/>}/>
           <Route path="/dashboard" element={<DashBoard/>}/>
           <Route path="/update-profile" element={<UpdateDetails/>}/>
-          <Route path="/transfer" element={<Transfer/>}/>
+          <Route path="/transfer" element={<Transfer />}>
+          <Route path="execute" element={<TransferExecute />} />
+        </Route>
         </Routes>
       </BrowserRouter>
     </>
